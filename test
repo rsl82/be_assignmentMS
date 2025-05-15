@@ -4,7 +4,7 @@
 echo "사용자 등록 API 호출..."
 curl -X POST http://localhost:3001/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com", "password":"Password123!"}' | jq .
+  -d '{"email":"test11@example.com", "password":"Password123!"}' | jq .
 
 # MongoDB 확인
 echo "MongoDB 데이터 확인..."

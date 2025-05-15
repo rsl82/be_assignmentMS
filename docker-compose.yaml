@@ -11,7 +11,9 @@ services:
   auth-server:
     build:
       context: .
-      dockerfile: auth-server/Dockerfile
+      dockerfile: Dockerfile 
+      args:
+        - SERVICE_NAME=auth-server
     ports:
       - "3001:3000"
     depends_on:
@@ -24,7 +26,9 @@ services:
   event-server:
     build:
       context: .
-      dockerfile: event-server/Dockerfile
+      dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=event-server
     ports:
       - "3002:3000"
     networks:
@@ -33,7 +37,9 @@ services:
   gateway-server:
     build:
       context: .
-      dockerfile: gateway-server/Dockerfile
+      dockerfile: Dockerfile
+      args:
+        - SERVICE_NAME=gateway-server
     ports:
       - "3003:3000"
     networks:

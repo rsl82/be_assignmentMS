@@ -1,6 +1,8 @@
 node_modules
-dist
-test
-.git
-Dockerfile
-*.md
+**/node_modules
+**/.git
+**/.vscode
+**/dist
+**/.env
+**/.env.*
+**/*.log
