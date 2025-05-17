@@ -1,8 +1,6 @@
 import { Body, Controller, Patch, Post } from "@nestjs/common";
-import { CreateUserDto } from "../dto/create-user.dto";
+import { CreateUserDto, LoginUserDto, ChangeRoleDto } from "common";
 import { AuthService } from "../services/auth.service";
-import { LoginUserDto } from "../dto/login-user.dto";
-import { ChangeRoleDto } from "src/dto/change-role.dto";
 
 
 @Controller('auth')

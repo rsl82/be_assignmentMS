@@ -1,13 +1,10 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
-import { CreateUserDto } from "../dto/create-user.dto";
 import { User } from "../schemas/user.schema";
 import * as bcrypt from "bcrypt";
-import { Role } from "common";
-import { LoginUserDto } from "src/dto/login-user.dto";
+import { Role, ChangeRoleDto, CreateUserDto, LoginUserDto } from "common";
 import { JwtService } from "@nestjs/jwt";
-import { ChangeRoleDto } from "src/dto/change-role.dto";
 
 
 @Injectable()
