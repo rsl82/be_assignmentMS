@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Strategy, ExtractJwt } from "passport-jwt";
 import { JwtPayload } from "../interfaces/jwt-payload.interface";
@@ -20,6 +20,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: JwtPayload) {
+        if (!payload) {
+            throw new UnauthorizedException('인증이 필요합니다');
+        }
         return { id: payload.id, email: payload.email, role: payload.role };
     }
 }
