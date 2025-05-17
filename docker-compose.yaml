@@ -42,6 +42,8 @@ services:
         - SERVICE_NAME=gateway-server
     ports:
       - "3003:3000"
+    env_file:
+      - .env.gateway-server
     networks:
       - backend
 
