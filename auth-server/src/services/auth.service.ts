@@ -17,7 +17,7 @@ export class AuthService {
     async createUser(createUserDto: CreateUserDto): Promise<User> {
 
         if(await this.findUserByEmail(createUserDto.email)) {
-            throw new ConflictException("User already exists");
+            throw new ConflictException("해당 메일의 유저가 이미 존재합니다.");
         }
 
         const hashedPassword = await this.hashPassword(createUserDto.password);
@@ -50,6 +50,7 @@ export class AuthService {
         }
 
         return this.generateToken(user._id.toString(), user.email, user.role);
+
     }
 
     private generateToken(id: string, email: string, role: Role): string {

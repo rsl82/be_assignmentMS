@@ -2,13 +2,13 @@
 
 # API 호출하기
 echo "사용자 등록 API 호출..."
-curl -X POST http://localhost:3001/auth/register \
+curl -X POST http://localhost:3003/public/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"test11@example.com", "password":"Password123!"}' | jq .
+  -d '{"email":"test_test@example.com", "password":"Password123!"}' | jq .
 
 # MongoDB 확인
 echo "MongoDB 데이터 확인..."
-docker exec -it backend-mongodb-1 mongosh --eval 'db.getSiblingDB("auth-db").users.find({email: "test11@example.com"}).pretty()'
+docker exec -it backend-mongodb-1 mongosh --eval 'db.getSiblingDB("auth-db").users.find({email: "test_test@example.com"}).pretty()'
 
 # 잠시 대기
 echo "잠시 대기 중..."
@@ -16,9 +16,9 @@ sleep 1
 
 # 로그인 API 호출 및 JWT 토큰 저장
 echo "로그인 API 호출..."
-TOKEN=$(curl -s -X POST http://localhost:3001/auth/login \
+TOKEN=$(curl -s -X POST http://localhost:3003/public/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"test11@example.com", "password":"Password123!"}')
+  -d '{"email":"test_test@example.com", "password":"Password123!"}')
 
 # 전체 응답 출력
 echo "로그인 응답(JWT 토큰):"
@@ -26,7 +26,7 @@ echo $TOKEN
 
 # 잘못된 로그인 테스트
 echo "잘못된 비밀번호로 로그인 시도..."
-curl -X POST http://localhost:3001/auth/login \
+curl -X POST http://localhost:3003/public/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"test11@example.com", "password":"WrongPassword!"}' | jq .
+  -d '{"email":"test_test@example.com", "password":"WrongPassword!"}' | jq .
 

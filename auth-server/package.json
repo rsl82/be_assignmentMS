@@ -29,6 +29,7 @@
     "bcrypt": "^6.0.0",
     "class-validator": "^0.14.2",
     "common": "workspace:*",
+    "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.3",
     "reflect-metadata": "^0.2.2",

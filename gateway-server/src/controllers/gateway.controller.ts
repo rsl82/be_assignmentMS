@@ -1,27 +1,52 @@
-import { Get, Post } from "@nestjs/common";
+import { All, Body, Get, Patch, Post, Res, Req, Param, ForbiddenException } from "@nestjs/common";
 import { UseGuards } from "@nestjs/common";
 import { Controller } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
-import { Role } from "common";
+import { ChangeRoleDto, CreateUserDto, LoginUserDto, Role } from "common";
 import { Roles } from "src/decorators/roles.decorator";
 import { RolesGuard } from "src/guards/roles.guard";
 import { GatewayService } from "src/services/gateway.service";
-
-
+import { Request, Response } from 'express';
+import { JwtPayload } from "src/interfaces/jwt-payload.interface";
+import { User } from "src/decorators/user.decorator";
+import { PUBLIC_ROUTES } from "src/constants/routes.constant";
 
 @Controller()
 export class GatewayController {
     constructor(private readonly gatewayService: GatewayService) {}
     
     //테스트용
-    @Get()
+    @Get('test/user')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(Role.USER)
-    async getHello(): Promise<string> {
-        return 'Hello World!';
+    async getHello(@User() user: JwtPayload): Promise<string> {
+        return `Hello World! User: ${JSON.stringify(user)}`;
     }
 
-    @Post('auth/register')
-    
+    @Get('test/admin')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(Role.ADMIN)
+    async getHelloAdmin(): Promise<string> {
+        return 'Hello Admin!';
+    }
+
+
+
+    @All('public/:server/*rest')
+    async publicEndpoints(
+      @Param('server') server: string,
+      @Param('rest') rest: string,
+      @Req() req: Request,
+      @Body() body: any,
+    ) {
+      const serverName = server.toUpperCase();
+      const path = `/${rest}`;
+      
+      if (!PUBLIC_ROUTES[serverName]?.includes(path)) {
+        throw new ForbiddenException('접근할 수 없는 경로입니다');
+      }
+
+      return this.gatewayService.forwardToService(serverName, path, req, undefined, body);
+    }
 
 }  

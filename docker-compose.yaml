@@ -46,6 +46,9 @@ services:
       - .env.gateway-server
     networks:
       - backend
+    depends_on:
+      - auth-server
+      - event-server
 
 volumes:
   mongodb_data:
