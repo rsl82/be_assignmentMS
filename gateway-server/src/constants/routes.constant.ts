@@ -6,7 +6,10 @@ export type RouteConfig = {
 export const PUBLIC_ROUTES: Record<string, RouteConfig[]> = {
   AUTH: [
     { path: '/register', methods: ['POST'] },
-    { path: '/login', methods: ['POST'] }
+    { path: '/login', methods: ['POST'] },
+  ],
+  EVENT: [
+    { path: '/event', methods: ['GET'] },
   ],
 };
 

@@ -40,24 +40,25 @@ export class GatewayController {
     private isAllowedRoute(
       routes: Record<string, RouteConfig[]>,
       serverName: string,
-      path: string,
+      api: string,
       method: string
     ): boolean {
-      return routes[serverName]?.some(
-        route => route.path === path && route.methods.includes(method as any)
+      return routes[serverName]?.some(route =>
+        route.path === api && route.methods.includes(method as any)
       ) ?? false;
     }
 
-    @All('public/:server/*rest')
+    // PUBLIC 라우트 처리
+    @All('public/:server/:api')
     async publicEndpoints(
       @Param('server') server: string,
-      @Param('rest') rest: string,
+      @Param('api') api: string,
       @Req() req: Request,
       @Body() body: any,
     ) {
       const serverName = server.toUpperCase();
-      const path = `/${rest}`;
-      
+      const path = `/${api}`;
+
       if (!this.isAllowedRoute(PUBLIC_ROUTES, serverName, path, req.method)) {
         throw new ForbiddenException('접근할 수 없는 경로입니다');
       }
@@ -65,18 +66,38 @@ export class GatewayController {
       return this.gatewayService.forwardToService(serverName, path, req, undefined, body);
     }
 
-    @All('operator/:server/*rest')
+    @All('public/:server/:api/*query')
+    async publicEndpointsWithQuery(
+      @Param('server') server: string,
+      @Param('api') api: string,
+      @Param('query') query: string[],
+      @Req() req: Request,
+      @Body() body: any,
+    ) {
+      const serverName = server.toUpperCase();
+      const apiPath = `/${api}`;
+      const fullPath = `/${api}/${query.join('/')}`;
+
+      if (!this.isAllowedRoute(PUBLIC_ROUTES, serverName, apiPath, req.method)) {
+        throw new ForbiddenException('접근할 수 없는 경로입니다');
+      }
+
+      return this.gatewayService.forwardToService(serverName, fullPath, req, undefined, body);
+    }
+
+    // OPERATOR 라우트 처리
+    @All('operator/:server/:api')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Roles(Role.OPERATOR, Role.ADMIN)
     async operatorEndpoints(
       @Param('server') server: string,
-      @Param('rest') rest: string,
+      @Param('api') api: string,
       @Req() req: Request,
       @User() user: JwtPayload,
       @Body() body: any,
     ) {
       const serverName = server.toUpperCase();
-      const path = `/${rest}`;
+      const path = `/${api}`;
 
       if (!this.isAllowedRoute(OPERATOR_ROUTES, serverName, path, req.method)) {
         throw new ForbiddenException('접근할 수 없는 경로입니다');
@@ -85,23 +106,64 @@ export class GatewayController {
       return this.gatewayService.forwardToService(serverName, path, req, user, body);
     }
 
-    @All('admin/:server/*rest')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(Role.ADMIN)
-    async adminEndpoints(
+    @All('operator/:server/:api/*query')
+    async operatorEndpointsWithQuery(
       @Param('server') server: string,
-      @Param('rest') rest: string,
+      @Param('api') api: string,
+      @Param('query') query: string[],
       @Req() req: Request,
       @User() user: JwtPayload,
       @Body() body: any,
     ) {
       const serverName = server.toUpperCase();
-      const path = `/${rest}`;
+      const apiPath = `/${api}`;
+      const fullPath = `/${api}/${query.join('/')}`;
+
+      if (!this.isAllowedRoute(OPERATOR_ROUTES, serverName, apiPath, req.method)) {
+        throw new ForbiddenException('접근할 수 없는 경로입니다');
+      }
+
+      return this.gatewayService.forwardToService(serverName, fullPath, req, user, body);
+    }
+
+    // ADMIN 라우트 처리
+    @All('admin/:server/:api')
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Roles(Role.ADMIN)
+    async adminEndpoints(
+      @Param('server') server: string,
+      @Param('api') api: string,
+      @Req() req: Request,
+      @User() user: JwtPayload,
+      @Body() body: any,
+    ) {
+      const serverName = server.toUpperCase();
+      const path = `/${api}`;
       
       if (!this.isAllowedRoute(ADMIN_ROUTES, serverName, path, req.method)) {
         throw new ForbiddenException('접근할 수 없는 경로입니다');
       }
 
       return this.gatewayService.forwardToService(serverName, path, req, user, body);
+    }
+
+    @All('admin/:server/:api/*query')
+    async adminEndpointsWithQuery(
+      @Param('server') server: string,
+      @Param('api') api: string,
+      @Param('query') query: string[],
+      @Req() req: Request,
+      @User() user: JwtPayload,
+      @Body() body: any,
+    ) {
+      const serverName = server.toUpperCase();
+      const apiPath = `/${api}`;
+      const fullPath = `/${api}/${query.join('/')}`;  
+
+      if (!this.isAllowedRoute(ADMIN_ROUTES, serverName, apiPath, req.method)) {
+        throw new ForbiddenException('접근할 수 없는 경로입니다');
+      }
+
+      return this.gatewayService.forwardToService(serverName, fullPath, req, user, body);
     }
 }  
