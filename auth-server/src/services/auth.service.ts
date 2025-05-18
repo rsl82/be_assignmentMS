@@ -2,9 +2,11 @@ import { ConflictException, Injectable, NotFoundException, UnauthorizedException
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import * as bcrypt from "bcrypt";
-import { Role, ChangeRoleDto, CreateUserDto, LoginUserDto, User } from "common";
+import { Role, User } from "common";
 import { JwtService } from "@nestjs/jwt";
-
+import { CreateUserDto } from "../dto/create-user.dto";
+import { LoginUserDto } from "../dto/login-user.dto";
+import { ChangeRoleDto } from "../dto/change-role.dto";
 
 @Injectable()
 export class AuthService {

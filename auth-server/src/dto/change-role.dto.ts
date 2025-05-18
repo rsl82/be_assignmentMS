@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsNotEmpty } from "class-validator";
-import { Role } from "../enums";
+import { Role } from "common";
 
 export class ChangeRoleDto {
 
