@@ -31,6 +31,10 @@ services:
         - SERVICE_NAME=event-server
     ports:
       - "3002:3000"
+    depends_on:
+      - mongodb
+    env_file:
+      - .env.event-server
     networks:
       - backend
 

@@ -10,6 +10,9 @@ COPY pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY common/package.json ./common/
 COPY ${SERVICE_NAME}/package.json ./${SERVICE_NAME}/
 
+# .npmrc 추가
+COPY .npmrc ./
+
 RUN --mount=type=cache,id=pnpm-store,target=/root/.pnpm-store \
     pnpm install
 
@@ -32,6 +35,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 WORKDIR /app
 
 COPY --from=builder /app/pnpm-workspace.yaml /app/pnpm-lock.yaml ./
+COPY --from=builder /app/.npmrc ./
 COPY --from=builder /app/common/package.json ./common/
 COPY --from=builder /app/${SERVICE_NAME}/package.json ./
 COPY --from=builder /app/${SERVICE_NAME}/dist ./dist
