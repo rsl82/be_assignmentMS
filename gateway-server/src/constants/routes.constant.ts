@@ -22,5 +22,6 @@ export const ADMIN_ROUTES: Record<string, RouteConfig[]> = {
 export const OPERATOR_ROUTES: Record<string, RouteConfig[]> = {
   EVENT: [
     { path: '/event', methods: ['POST'] },
+    { path: '/reward', methods: ['POST'] },
   ],
 };

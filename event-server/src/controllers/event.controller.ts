@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Get, Param } from "@nestjs/common";
 import { EventService } from "src/services/event.service";
 import { CreateEventDto } from "../dto/create-event.dto";
+import { CreateRewardDto } from "../dto/create-reward.dto";
 
 @Controller()
 export class EventController {
@@ -22,6 +23,12 @@ export class EventController {
     async getEventById(@Param('id') id: string) {
         const event = await this.eventService.getEventById(id);
         return event;
+    }
+
+    @Post('reward')
+    async createReward(@Body() createRewardDto: CreateRewardDto) {
+        const reward = await this.eventService.createReward(createRewardDto);
+        return reward;
     }
     
 }
