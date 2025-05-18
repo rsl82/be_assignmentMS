@@ -1,7 +1,23 @@
-export const PUBLIC_ROUTES = {
-    AUTH: ['/register', '/login'],
-  } as const;
+export type RouteConfig = {
+  path: string;
+  methods: ('GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH')[];
+};
 
-  export const ADMIN_ROUTES = {
-    AUTH: ['/role'],
-  } as const;
+export const PUBLIC_ROUTES: Record<string, RouteConfig[]> = {
+  AUTH: [
+    { path: '/register', methods: ['POST'] },
+    { path: '/login', methods: ['POST'] }
+  ],
+};
+
+export const ADMIN_ROUTES: Record<string, RouteConfig[]> = {
+  AUTH: [
+    { path: '/role', methods: ['PATCH'] }
+  ],
+};
+
+export const OPERATOR_ROUTES: Record<string, RouteConfig[]> = {
+  EVENT: [
+    { path: '/event', methods: ['POST'] },
+  ],
+};
