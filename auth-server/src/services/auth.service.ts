@@ -2,7 +2,7 @@ import { ConflictException, Injectable, NotFoundException, UnauthorizedException
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import * as bcrypt from "bcrypt";
-import { Role, User } from "common";
+import { Role, User, UserInfo } from "common";
 import { JwtService } from "@nestjs/jwt";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { LoginUserDto } from "../dto/login-user.dto";
@@ -12,6 +12,7 @@ import { ChangeRoleDto } from "../dto/change-role.dto";
 export class AuthService {
     constructor(
         @InjectModel(User.name) private readonly userModel: Model<User>,
+        @InjectModel(UserInfo.name) private readonly userInfoModel: Model<UserInfo>,
         private readonly jwtService: JwtService
     ) {}
 
@@ -29,6 +30,14 @@ export class AuthService {
             role: Role.USER
         });
 
+
+        const userInfo = await this.userInfoModel.create({
+            user: user._id,
+        });
+        user.userInfo = userInfo._id;
+        await user.save();
+
+        
         return user;
     }
 

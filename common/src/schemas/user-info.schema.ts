@@ -3,13 +3,13 @@ import { Types } from "mongoose";
 
 @Schema()
 export class UserInfo {
-    @Prop()
+    @Prop({ default: null })
     birthDate: Date;
 
-    @Prop()
+    @Prop({ default: 0 })
     attendanceStreak: number;
 
-    @Prop()
+    @Prop({ default: null })
     lastAttendance: Date;
 
     @Prop({ ref: 'User', required: true })
