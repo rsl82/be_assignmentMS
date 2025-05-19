@@ -1,23 +1,66 @@
 services:
   mongodb:
+    container_name: mongodb
     image: mongo:latest
     ports:
       - "27017:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     volumes:
       - mongodb_data:/data/db
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  mongodb2:
+    container_name: mongodb2
+    image: mongo:latest
+    ports:
+      - "27018:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    networks:
+      - backend
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  mongodb3:
+    container_name: mongodb3
+    image: mongo:latest
+    ports:
+      - "27019:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    networks:
+      - backend
+    depends_on:
+      mongodb2:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   auth-server:
     build:
       context: .
-      dockerfile: Dockerfile 
+      dockerfile: Dockerfile
       args:
         - SERVICE_NAME=auth-server
     ports:
       - "3001:3000"
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     env_file:
       - .env.auth-server
     networks:
@@ -32,7 +75,8 @@ services:
     ports:
       - "3002:3000"
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     env_file:
       - .env.event-server
     networks:
@@ -46,13 +90,13 @@ services:
         - SERVICE_NAME=gateway-server
     ports:
       - "3003:3000"
+    depends_on:
+      - auth-server
+      - event-server
     env_file:
       - .env.gateway-server
     networks:
       - backend
-    depends_on:
-      - auth-server
-      - event-server
 
 volumes:
   mongodb_data:
