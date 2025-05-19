@@ -25,3 +25,10 @@ export const OPERATOR_ROUTES: Record<string, RouteConfig[]> = {
     { path: '/reward', methods: ['POST'] },
   ],
 };
+
+export const USER_ROUTES: Record<string, RouteConfig[]> = {
+  EVENT: [
+    { path: '/request', methods: ['POST'] },
+  ],
+};
+
