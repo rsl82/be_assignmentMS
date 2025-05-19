@@ -4,6 +4,7 @@ import { CreateEventDto } from "../dto/create-event.dto";
 import { CreateRewardDto } from "../dto/create-reward.dto";
 import { CreateRequestDto } from "../dto/create-request.dto";
 import { UserHeader } from "src/decorators/user-header.decorator";
+import { Role } from "common";
 
 @Controller()
 export class EventController {
@@ -37,6 +38,17 @@ export class EventController {
     async createRequest(@Body() createRequestDto: CreateRequestDto, @UserHeader('id') userId: string) {
         const request = await this.eventService.createRequest(createRequestDto, userId);
         return request;
+    }
+
+    @Get('request')
+    async getRequests(@UserHeader() userHeader:UserHeader ) {
+        const {id, role} = userHeader
+        if (role === Role.USER) {
+            return this.eventService.getRequests(id);
+        }
+        else {
+            return this.eventService.getRequests();
+        }
     }
     
 }

@@ -9,7 +9,7 @@ import { GatewayService } from "src/services/gateway.service";
 import { Request } from 'express';
 import { JwtPayload } from "src/interfaces/jwt-payload.interface";
 import { User } from "src/decorators/user.decorator";
-import { ADMIN_ROUTES, PUBLIC_ROUTES, OPERATOR_ROUTES, RouteConfig, USER_ROUTES } from "src/constants/routes.constant";
+import { ADMIN_ROUTES, PUBLIC_ROUTES, OPERATOR_ROUTES, RouteConfig, USER_ROUTES, AUTHORIZED_ROUTES } from "src/constants/routes.constant";
 
 @Controller()
 export class GatewayController {
@@ -85,6 +85,26 @@ export class GatewayController {
       return this.gatewayService.forwardToService(serverName, fullPath, req, undefined, body);
     }
 
+    //JwT 인증 받은 사람이면 전부 라우트
+    @All('authorized/:server/:api')
+    @UseGuards(AuthGuard('jwt'))
+    async authorizedEndpoints(
+      @Param('server') server: string,
+      @Param('api') api: string,  
+      @Req() req: Request,
+      @User() user: JwtPayload,
+      @Body() body: any,
+    ) {
+      const serverName = server.toUpperCase();
+      const path = `/${api}`;
+
+      if (!this.isAllowedRoute(AUTHORIZED_ROUTES, serverName, path, req.method)) {
+        throw new ForbiddenException('접근할 수 없는 경로입니다');
+      }
+
+      return this.gatewayService.forwardToService(serverName, path, req, user, body);
+    }
+
     // USER 라우트 처리
     @All('user/:server/:api')
     @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -106,27 +126,7 @@ export class GatewayController {
       return this.gatewayService.forwardToService(serverName, path, req, user, body);
     }
 
-    @All('user/:server/:api/*query')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(Role.USER,Role.ADMIN)
-    async userEndpointsWithQuery(
-      @Param('server') server: string,
-      @Param('api') api: string,
-      @Param('query') query: string[],
-      @Req() req: Request,
-      @User() user: JwtPayload,
-      @Body() body: any,
-    ) {
-      const serverName = server.toUpperCase();
-      const apiPath = `/${api}`;
-      const fullPath = `/${api}/${query.join('/')}`;
 
-      if (!this.isAllowedRoute(USER_ROUTES, serverName, apiPath, req.method)) {
-        throw new ForbiddenException('접근할 수 없는 경로입니다');
-      }
-
-      return this.gatewayService.forwardToService(serverName, fullPath, req, user, body);
-    }
 
     // OPERATOR 라우트 처리
     @All('operator/:server/:api')
@@ -149,27 +149,6 @@ export class GatewayController {
       return this.gatewayService.forwardToService(serverName, path, req, user, body);
     }
 
-    @All('operator/:server/:api/*query')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(Role.OPERATOR, Role.ADMIN)
-    async operatorEndpointsWithQuery(
-      @Param('server') server: string,
-      @Param('api') api: string,
-      @Param('query') query: string[],
-      @Req() req: Request,
-      @User() user: JwtPayload,
-      @Body() body: any,
-    ) {
-      const serverName = server.toUpperCase();
-      const apiPath = `/${api}`;
-      const fullPath = `/${api}/${query.join('/')}`;
-
-      if (!this.isAllowedRoute(OPERATOR_ROUTES, serverName, apiPath, req.method)) {
-        throw new ForbiddenException('접근할 수 없는 경로입니다');
-      }
-
-      return this.gatewayService.forwardToService(serverName, fullPath, req, user, body);
-    }
 
     // ADMIN 라우트 처리
     @All('admin/:server/:api')
@@ -192,25 +171,4 @@ export class GatewayController {
       return this.gatewayService.forwardToService(serverName, path, req, user, body);
     }
 
-    @All('admin/:server/:api/*query')
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Roles(Role.ADMIN)
-    async adminEndpointsWithQuery(
-      @Param('server') server: string,
-      @Param('api') api: string,
-      @Param('query') query: string[],
-      @Req() req: Request,
-      @User() user: JwtPayload,
-      @Body() body: any,
-    ) {
-      const serverName = server.toUpperCase();
-      const apiPath = `/${api}`;
-      const fullPath = `/${api}/${query.join('/')}`;  
-
-      if (!this.isAllowedRoute(ADMIN_ROUTES, serverName, apiPath, req.method)) {
-        throw new ForbiddenException('접근할 수 없는 경로입니다');
-      }
-
-      return this.gatewayService.forwardToService(serverName, fullPath, req, user, body);
-    }
 }  

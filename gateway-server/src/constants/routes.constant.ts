@@ -32,3 +32,9 @@ export const USER_ROUTES: Record<string, RouteConfig[]> = {
   ],
 };
 
+export const AUTHORIZED_ROUTES: Record<string, RouteConfig[]> = {
+  EVENT: [
+    { path: '/request', methods: ['GET'] },
+  ],
+};
+

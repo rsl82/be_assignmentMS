@@ -84,6 +84,8 @@ export class EventService {
         user.requests.push(request._id);
         await user.save();
 
+        
+
         const requestStatus = await this.checkCondition(event, user.userInfo, couponCode);
 
         request.status = requestStatus;
@@ -142,6 +144,18 @@ export class EventService {
         
         return RequestStatus.REJECT_STATUS;
        
-        
+    }
+
+    async getRequests(userId?: string): Promise<Request[]> {
+        if (userId) {
+            const user = await this.userModel.findById(userId).populate<{ requests: Request[] }>('requests');
+            if (!user) {
+                throw new NotFoundException("존재하지 않는 유저입니다.");
+            }
+            return user.requests;
+        }
+        else {
+            return this.requestModel.find();
+        }
     }
 }
