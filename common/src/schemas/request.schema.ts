@@ -13,7 +13,6 @@ export class Request {
     @Prop({ required: true })
     status: RequestStatus;
 
-
     @Prop({ required: true, default: Date.now })
     requestDate: Date;
 }
