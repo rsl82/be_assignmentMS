@@ -4,8 +4,8 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Model, Connection } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { Role, User, UserInfo } from 'common';
 import { JwtService } from '@nestjs/jwt';
@@ -19,6 +19,7 @@ export class AuthService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(UserInfo.name) private readonly userInfoModel: Model<UserInfo>,
     private readonly jwtService: JwtService,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
@@ -28,19 +29,43 @@ export class AuthService {
 
     const hashedPassword = await this.hashPassword(createUserDto.password);
 
-    const user = await this.userModel.create({
-      email: createUserDto.email,
-      password: hashedPassword,
-      role: Role.USER,
-    });
+    const session = await this.connection.startSession();
 
-    const userInfo = await this.userInfoModel.create({
-      user: user._id,
-    });
-    user.userInfo = userInfo._id;
-    await user.save();
+    session.startTransaction();
+    try {
+      const user = await this.userModel.create(
+        [
+          {
+            email: createUserDto.email,
+            password: hashedPassword,
+            role: Role.USER,
+          },
+        ],
+        { session },
+      );
 
-    return user;
+      const userInfo = await this.userInfoModel.create(
+        [
+          {
+            user: user[0]._id,
+          },
+        ],
+        { session },
+      );
+
+      user[0].userInfo = userInfo[0]._id;
+      await user[0].save({ session });
+
+      await session.commitTransaction();
+      session.endSession();
+
+      return user[0];
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
   }
 
   private async findUserByEmail(email: string): Promise<User | null> {
