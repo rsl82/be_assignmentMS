@@ -8,15 +8,11 @@ export const PUBLIC_ROUTES: Record<string, RouteConfig[]> = {
     { path: '/register', methods: ['POST'] },
     { path: '/login', methods: ['POST'] },
   ],
-  EVENT: [
-    { path: '/event', methods: ['GET'] },
-  ],
+  EVENT: [{ path: '/event', methods: ['GET'] }],
 };
 
 export const ADMIN_ROUTES: Record<string, RouteConfig[]> = {
-  AUTH: [
-    { path: '/role', methods: ['PATCH'] }
-  ],
+  AUTH: [{ path: '/role', methods: ['PATCH'] }],
 };
 
 export const OPERATOR_ROUTES: Record<string, RouteConfig[]> = {
@@ -27,14 +23,9 @@ export const OPERATOR_ROUTES: Record<string, RouteConfig[]> = {
 };
 
 export const USER_ROUTES: Record<string, RouteConfig[]> = {
-  EVENT: [
-    { path: '/request', methods: ['POST'] },
-  ],
+  EVENT: [{ path: '/request', methods: ['POST'] }],
 };
 
 export const AUTHORIZED_ROUTES: Record<string, RouteConfig[]> = {
-  EVENT: [
-    { path: '/request', methods: ['GET'] },
-  ],
+  EVENT: [{ path: '/request', methods: ['GET'] }],
 };
-

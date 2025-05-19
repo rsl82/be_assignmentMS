@@ -1,14 +1,16 @@
-import { Injectable, NotFoundException, BadGatewayException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadGatewayException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
 import fetch from 'node-fetch';
 
-
 @Injectable()
 export class GatewayService {
   constructor(private readonly configService: ConfigService) {}
-
 
   async forwardToService(
     serverName: string,
@@ -25,14 +27,14 @@ export class GatewayService {
     const fullUrl = new URL(path, serverUrl).toString();
     const headers = {
       'Content-Type': 'application/json',
-      ...this.prepareHeaders(request.headers, user)
+      ...this.prepareHeaders(request.headers, user),
     };
 
     try {
       const response = await fetch(fullUrl, {
         method: request.method,
         headers,
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       });
 
       const data = await response.json();
@@ -41,7 +43,7 @@ export class GatewayService {
         throw {
           statusCode: response.status,
           message: data.message,
-          error: data.error
+          error: data.error,
         };
       }
 
@@ -55,18 +57,19 @@ export class GatewayService {
     }
   }
 
-
   private prepareHeaders(
     originalHeaders: Record<string, any>,
     user?: JwtPayload,
   ): Record<string, string> {
     const { host, connection, ...headers } = originalHeaders;
-    
-    return user ? {
-      ...headers,
-      'x-user-id': user.id,
-      'x-user-email': user.email,
-      'x-user-role': user.role.toString()
-    } : headers;
+
+    return user
+      ? {
+          ...headers,
+          'x-user-id': user.id,
+          'x-user-email': user.email,
+          'x-user-role': user.role.toString(),
+        }
+      : headers;
   }
 }

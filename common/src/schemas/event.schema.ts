@@ -1,7 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { EventType, EventStatus } from '../enums';
-import { Types } from 'mongoose';
-
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { EventType, EventStatus } from "../enums";
+import { Types } from "mongoose";
 
 @Schema()
 export class Event {
@@ -26,10 +25,8 @@ export class Event {
   @Prop({ required: true, enum: EventStatus, default: EventStatus.INACTIVE })
   status: EventStatus;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Reward' }] })
+  @Prop({ type: [{ type: Types.ObjectId, ref: "Reward" }] })
   rewards: Types.ObjectId[];
-
-
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

@@ -9,7 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
@@ -25,7 +25,9 @@ import { JwtModule } from '@nestjs/jwt';
       inject: [ConfigService],
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: UserInfo.name, schema: UserInfoSchema }]),
+    MongooseModule.forFeature([
+      { name: UserInfo.name, schema: UserInfoSchema },
+    ]),
   ],
   controllers: [AuthController],
   providers: [AuthService],

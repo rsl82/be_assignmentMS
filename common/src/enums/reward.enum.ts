@@ -1,4 +1,4 @@
 export enum RewardType {
-    POINT = 'POINT',
-    ITEM = 'ITEM',
-  }
+  POINT = "POINT",
+  ITEM = "ITEM",
+}

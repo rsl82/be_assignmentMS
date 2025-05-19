@@ -1,54 +1,58 @@
-import { Controller, Post, Body, Get, Param } from "@nestjs/common";
-import { EventService } from "src/services/event.service";
-import { CreateEventDto } from "../dto/create-event.dto";
-import { CreateRewardDto } from "../dto/create-reward.dto";
-import { CreateRequestDto } from "../dto/create-request.dto";
-import { UserHeader } from "src/decorators/user-header.decorator";
-import { Role } from "common";
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { EventService } from 'src/services/event.service';
+import { CreateEventDto } from '../dto/create-event.dto';
+import { CreateRewardDto } from '../dto/create-reward.dto';
+import { CreateRequestDto } from '../dto/create-request.dto';
+import { UserHeader } from 'src/decorators/user-header.decorator';
+import { Role } from 'common';
 
 @Controller()
 export class EventController {
-    constructor(private readonly eventService: EventService) {}
+  constructor(private readonly eventService: EventService) {}
 
-    @Post('event')
-    async createEvent(@Body() createEventDto: CreateEventDto) {
-        const event = await this.eventService.createEvent(createEventDto);
-        return event;
-    }
+  @Post('event')
+  async createEvent(@Body() createEventDto: CreateEventDto) {
+    const event = await this.eventService.createEvent(createEventDto);
+    return event;
+  }
 
-    @Get('event')
-    async getEvents() {
-        const events = await this.eventService.getEvents();
-        return events;
-    }
+  @Get('event')
+  async getEvents() {
+    const events = await this.eventService.getEvents();
+    return events;
+  }
 
-    @Get('event/:id')
-    async getEventById(@Param('id') id: string) {
-        const event = await this.eventService.getEventById(id);
-        return event;
-    }
+  @Get('event/:id')
+  async getEventById(@Param('id') id: string) {
+    const event = await this.eventService.getEventById(id);
+    return event;
+  }
 
-    @Post('reward')
-    async createReward(@Body() createRewardDto: CreateRewardDto) {
-        const reward = await this.eventService.createReward(createRewardDto);
-        return reward;
-    }
+  @Post('reward')
+  async createReward(@Body() createRewardDto: CreateRewardDto) {
+    const reward = await this.eventService.createReward(createRewardDto);
+    return reward;
+  }
 
-    @Post('request')
-    async createRequest(@Body() createRequestDto: CreateRequestDto, @UserHeader('id') userId: string) {
-        const request = await this.eventService.createRequest(createRequestDto, userId);
-        return request;
-    }
+  @Post('request')
+  async createRequest(
+    @Body() createRequestDto: CreateRequestDto,
+    @UserHeader('id') userId: string,
+  ) {
+    const request = await this.eventService.createRequest(
+      createRequestDto,
+      userId,
+    );
+    return request;
+  }
 
-    @Get('request')
-    async getRequests(@UserHeader() userHeader:UserHeader ) {
-        const {id, role} = userHeader
-        if (role === Role.USER) {
-            return this.eventService.getRequests(id);
-        }
-        else {
-            return this.eventService.getRequests();
-        }
+  @Get('request')
+  async getRequests(@UserHeader() userHeader: UserHeader) {
+    const { id, role } = userHeader;
+    if (role === Role.USER) {
+      return this.eventService.getRequests(id);
+    } else {
+      return this.eventService.getRequests();
     }
-    
+  }
 }

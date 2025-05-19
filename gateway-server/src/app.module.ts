@@ -8,8 +8,9 @@ import { HttpModule } from '@nestjs/axios';
 import { RolesGuard } from './guards/roles.guard';
 
 @Module({
-  imports: [ConfigModule.forRoot({isGlobal: true}),
-    PassportModule.register({defaultStrategy: 'jwt'}),
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     HttpModule,
   ],
   controllers: [GatewayController],
