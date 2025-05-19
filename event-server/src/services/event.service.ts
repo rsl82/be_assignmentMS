@@ -76,7 +76,7 @@ export class EventService {
             status: RequestStatus.PENDING
         });
         
-        const user = await this.userModel.findById(userId);
+        const user = await this.userModel.findById(userId).populate<{ userInfo: UserInfo }>('userInfo');
         if (!user) {
             throw new NotFoundException("존재하지 않는 유저입니다.");
         } //무조건 있긴 할텐데 없으면 오류 발생
@@ -84,15 +84,15 @@ export class EventService {
         user.requests.push(request._id);
         await user.save();
 
-        const requestStatus = await this.checkCondition(event, userId, couponCode);
+        const requestStatus = await this.checkCondition(event, user.userInfo, couponCode);
 
         request.status = requestStatus;
         await request.save();
-        
+
         return request;    
     }
 
-    private async checkCondition(event: Event, userId: string, couponCode: string | null): Promise<RequestStatus> {
+    private async checkCondition(event: Event, userInfo: UserInfo, couponCode: string | null): Promise<RequestStatus> {
         const { startDate, endDate, condition, type } = event;
 
         if (Date.now() < startDate.getTime() || Date.now() > endDate.getTime()) {
@@ -110,11 +110,6 @@ export class EventService {
             }
         } 
         else {
-            const userInfo = await this.userInfoModel.findOne({user:userId});
-            if (!userInfo) {
-                throw new NotFoundException("유저 정보를 찾을 수 없습니다.");
-            }
-
             if (type === EventType.ATTENDANCE) {
                 if (userInfo.attendanceStreak >= parseInt(condition)) {
                     return RequestStatus.SUCCESS;
