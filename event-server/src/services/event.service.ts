@@ -3,8 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { isValidObjectId, Model } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { isValidObjectId, Model, Connection } from 'mongoose';
 import { CreateEventDto } from '../dto/create-event.dto';
 import {
   Event,
@@ -27,6 +27,7 @@ export class EventService {
     @InjectModel(Request.name) private readonly requestModel: Model<Request>,
     @InjectModel(User.name) private readonly userModel: Model<User>,
     @InjectModel(UserInfo.name) private readonly userInfoModel: Model<UserInfo>,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
   async createEvent(createEventDto: CreateEventDto): Promise<Event> {
@@ -51,17 +52,30 @@ export class EventService {
   }
 
   async createReward(createRewardDto: CreateRewardDto): Promise<Reward> {
-    const event = await this.eventModel.findById(createRewardDto.event);
-    if (!event) {
-      throw new NotFoundException('존재하지 않는 이벤트입니다.');
+    const session = await this.connection.startSession();
+    session.startTransaction();
+
+    try {
+      const event = await this.eventModel.findById(createRewardDto.event);
+      if (!event) {
+        throw new NotFoundException('존재하지 않는 이벤트입니다.');
+      }
+
+      const reward = await this.rewardModel.create([createRewardDto], {
+        session,
+      });
+
+      event.rewards.push(reward[0]._id);
+      await event.save({ session });
+
+      await session.commitTransaction();
+      return reward[0];
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      await session.endSession();
     }
-
-    const reward = await this.rewardModel.create(createRewardDto);
-
-    event.rewards.push(reward._id);
-    await event.save();
-
-    return reward;
   }
 
   async createRequest(createRequestDto: CreateRequestDto, userId: string) {
@@ -71,6 +85,13 @@ export class EventService {
     if (!event || event.status !== EventStatus.ACTIVE) {
       throw new NotFoundException('존재하지 않는 이벤트입니다.');
     }
+
+    const user = await this.userModel
+      .findById(userId)
+      .populate<{ userInfo: UserInfo }>('userInfo');
+    if (!user) {
+      throw new NotFoundException('존재하지 않는 유저입니다.');
+    } //무조건 있긴 할텐데 없으면 오류 발생
 
     const successRequest = await this.requestModel.findOne({
       event: eventId,
@@ -82,32 +103,43 @@ export class EventService {
       throw new BadRequestException('이미 보상을 받은 이벤트입니다.');
     }
 
-    const request = await this.requestModel.create({
-      event: eventId,
-      user: userId,
-      status: RequestStatus.PENDING,
-    });
+    const session = await this.connection.startSession();
+    session.startTransaction();
 
-    const user = await this.userModel
-      .findById(userId)
-      .populate<{ userInfo: UserInfo }>('userInfo');
-    if (!user) {
-      throw new NotFoundException('존재하지 않는 유저입니다.');
-    } //무조건 있긴 할텐데 없으면 오류 발생
+    try {
+      const request = await this.requestModel.create(
+        [
+          {
+            event: eventId,
+            user: userId,
+            status: RequestStatus.PENDING,
+          },
+        ],
+        { session },
+      );
 
-    user.requests.push(request._id);
-    await user.save();
+      user.requests.push(request[0]._id);
+      await user.save({ session });
 
-    const requestStatus = await this.checkCondition(
-      event,
-      user.userInfo,
-      couponCode,
-    );
+      const requestStatus = await this.checkCondition(
+        event,
+        user.userInfo,
+        couponCode,
+      );
 
-    request.status = requestStatus;
-    await request.save();
+      request[0].status = requestStatus;
+      await request[0].save({ session });
 
-    return request;
+      await session.commitTransaction();
+      session.endSession();
+
+      return request[0];
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      await session.endSession();
+    }
   }
 
   private async checkCondition(
