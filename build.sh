@@ -1,3 +1,12 @@
+if ! command -v pnpm &> /dev/null; then
+    echo "pnpm 설치 후 실행해주세요."
+    exit 1
+fi
+
+if ! command -v docker &> /dev/null; then
+    echo "docker 설치 후 실행해주세요."
+    exit 1
+fi
 
 pnpm install
 cd common
