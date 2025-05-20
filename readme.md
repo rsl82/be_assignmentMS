@@ -16,7 +16,7 @@
    - 당연하지만 GET 요청에는 Body 값을 지우고 테스트
    - API는 아래 API ROUTES 참조
 
-3. 유저의 이벤트 조건과 ADMIN 계정 생성 등 서버 구성에 포함되지 않은 내용은 MongoDB Compass를 통해서 진행
+3. 유저의 이벤트 조건과 ADMIN 계정 생성 등 서버 구성에 포함되지 않은 내용은 MongoDB Compass를 통해서 진행 (DB 이름 = backend)
    - URI = mongodb://localhost:27017/?replicaSet=rs0&directConnection=true 로 연결
    - 첫 ADMIN 계정은 Compass를 통해 수동으로 생성.
    - 이후는 ADMIN의 권한 변경 API를 통해 수정 가능함.
