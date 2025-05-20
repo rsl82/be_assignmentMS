@@ -3,8 +3,24 @@
 ## 초기 실행
 
 1. ./build.sh를 통해서 build 파일 실행
+
    - 실행 전 pnpm과 docker를 설치해야 합니다. (미설치 시 설치 필요 메시지 노출과 함께 스크립트 종료)
-2. 아래의 API를 통해서 실행 테스트 완료
+   - npm install -g pnpm
+   - Docker는 공식 웹 사이트에서 GUI와 함께 다운받아서 사용
+
+2. 아래의 API를 통해서 실행 테스트
+
+   - http://localhost:3003/:권한레벨/:서버이름/:path 의 구성을 통해 게이트웨이로 접근가능
+   - API 중 Body 값이 필요한 요청의 경우 JSON 형식으로 dto를 참고하여 작성
+   - JWT Token의 경우 Bearer Token 방식으로 인증받도록 함
+   - 당연하지만 GET 요청에는 Body 값을 지우고 테스트
+   - API는 아래 API ROUTES 참조
+
+3. 유저의 이벤트 조건과 ADMIN 계정 생성 등 서버 구성에 포함되지 않은 내용은 MongoDB Compass를 통해서 진행
+   - URI = mongodb://localhost:27017/?replicaSet=rs0&directConnection=true 로 연결
+   - 첫 ADMIN은 USER를 API로 생성한 후 ADMIN으로 변경해서 사용
+   - 이후는 ADMIN의 권한 변경 API를 통해 수정 가능함.
+   - 이벤트 체크에 쓰이는 USERINFO 값 수동으로 변경 후 테스트 가능
 
 ## 프로젝트 구조
 
@@ -89,7 +105,7 @@ backend/
 - 쿼리 기반 요청 처리
 - Role 기반 분기 처리
 
-### 데이터베이스 구조
+### 데이터베이스 구조 (**Backend** 디렉토리 안에 존재)
 
 - **Event**: 이벤트 정보
 - **Reward**: 이벤트 보상 정보
@@ -133,7 +149,7 @@ backend/
 
 # API Routes
 
-기본적으로 http://localhost:3003/:권한레벨/:서버이름/:path 의 구성을 통해 게이트웨이로 접근가능합니다.
+http://localhost:3003/:권한레벨/:서버이름/:path
 
 ## Public Routes
 
@@ -190,4 +206,4 @@ backend/
 - **Admin**: 관리자 권한 필요
 - **Operator**: 운영자 권한 필요
 - **User**: 일반 사용자 권한 필요
-- **Authorized**: 로그인한 사용자만 접근 가능
+- **Authorized**: 로그인한 사용자만 접근 가능 (AUDITOR의 요청 열람 권한도 이 안에 포함되어 있음)
